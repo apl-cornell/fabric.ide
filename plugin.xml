@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.imp.runtime.languageDescription">
+      <language
+            extensions="fab"
+            description="An information-flow language for distributed computing."
+            derivedFrom="Java"
+            natureID="edu.cornell.cs.apl.fabricNature"
+            language="Fabric">
+      </language>
+   </extension>
+   <extension
+         id="FabricIDE.parser"
+         name="Fabric Parser"
+         point="org.eclipse.imp.runtime.parser">
+      <parser
+            class="fabric.imp.parser.FabricParseController"
+            language="Fabric">
+      </parser>
+   </extension>
+
+</plugin>
