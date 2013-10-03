@@ -13,6 +13,7 @@ package fabric.imp.parser;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import codebases.frontend.CodebaseSource;
 import fabric.FabricScheduler;
 import fabric.parse.Grm;
 import fabric.parse.Lexer_c;
+import fabric.parse.sym;
 import lpg.runtime.ILexStream;
 import lpg.runtime.IMessageHandler;
 import lpg.runtime.IPrsStream;
@@ -60,7 +62,7 @@ import polyglot.util.ErrorQueue;
  */
 public class ExtensionInfo extends fabric.ExtensionInfo {
 	public class FabricIDEParser extends CupParser implements IParser {
-
+	    protected String[] termStrings;
 		public FabricIDEParser(lr_parser grm, Source source, ErrorQueue eq) {
 			super(grm, source, eq);
 			// TODO Auto-generated constructor stub
@@ -75,12 +77,29 @@ public class ExtensionInfo extends fabric.ExtensionInfo {
 			return grm.EOF_sym();
 		}
 
+		private void setTermStrings() {
+            Field[] fields = sym.class.getFields();
+            termStrings = new String[fields.length];
+            int i = 0;
+            for (Field f : fields) {
+                termStrings[i++] = f.getName();
+            }
+		}
+		
 		@Override
 		public int numTokenKinds() {
+		    if (termStrings == null) {
+		        setTermStrings();
+		    }
+		    return termStrings.length;
 		}
 
 		@Override
-		public String[] orderedTerminalSymbols() {			
+		public String[] orderedTerminalSymbols() {	
+		    if (termStrings == null) {
+		        setTermStrings();
+		    }
+		    return termStrings;
 		}
 
 		@Override
@@ -93,7 +112,9 @@ public class ExtensionInfo extends fabric.ExtensionInfo {
 	}
 	public class FabricIDELexer extends Lexer_c implements ILexer {
 
-		public FabricIDELexer(InputStream in, FileSource file, ErrorQueue eq) {
+		private int[] kwKinds;
+
+        public FabricIDELexer(InputStream in, FileSource file, ErrorQueue eq) {
 			super(in, file, eq);
 		}
 
@@ -110,8 +131,12 @@ public class ExtensionInfo extends fabric.ExtensionInfo {
 
 		@Override
 		public int[] getKeywordKinds() {
-			// TODO Auto-generated method stub
-			return null;
+		    if (kwKinds == null) {
+    		    Map kws = this.keywords();
+    		    kwKinds = new int[kws.entrySet().size()];
+    		    
+		    }
+    			return null;
 		}
 
 		@Override

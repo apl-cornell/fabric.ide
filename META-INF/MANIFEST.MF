@@ -36,4 +36,3 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.navigator;bundle-version="3.5.300"
 Bundle-Activator: fabric.FabricPlugin
 Eclipse-LazyStart: true
-Import-Package: org.eclipse.imp.utils
