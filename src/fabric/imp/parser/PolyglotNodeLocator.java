@@ -14,9 +14,9 @@ package fabric.imp.parser;
 import java.util.LinkedList;
 import java.util.List;
 
-import lpg.runtime.ILexStream;
-import lpg.runtime.IPrsStream;
-import lpg.runtime.IToken;
+//import lpg.runtime.ILexStream;
+//import lpg.runtime.IPrsStream;
+//import lpg.runtime.IToken;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -319,7 +319,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
         }
     };
 
-    public PolyglotNodeLocator(ISourceProject srcProject, ILexStream ls) {
+    public PolyglotNodeLocator(ISourceProject srcProject, Object ls) {
         fLS= ls;
         fSrcProject= srcProject;
     }

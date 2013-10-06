@@ -1,14 +1,12 @@
-package x10dt.ui.parser;
-
-import java.util.List;
-
-import org.eclipse.core.resources.IProject;
+package fabric.imp.parser;
 
 import lpg.runtime.IMessageHandler;
 import lpg.runtime.Monitor;
-import polyglot.frontend.Goal;
-import polyglot.frontend.Job;
+
+import org.eclipse.core.resources.IProject;
+
 import polyglot.frontend.Scheduler;
+import fabric.FabricScheduler;
 
 public class ParseExtensionInfo extends ExtensionInfo {
 	
@@ -18,15 +16,17 @@ public class ParseExtensionInfo extends ExtensionInfo {
 
 	@Override
     protected Scheduler createScheduler() {
-        return new X10Scheduler(this) {
-            @Override
-            public List<Goal> goals(Job job) {
-                if (fInterestingSources.contains(job.source())) {
-                	fInterestingJobs.put(job.source(), job);
-                }
-                return super.parseSourceGoals(job);
-            }
- 
-        };
+        return new FabricScheduler(this, filext);
+        //XXX: what should the below do?
+//        return new FabricScheduler(this) {
+//            @Override
+//            public List<Goal> goals(Job job) {
+//                if (fInterestingSources.contains(job.source())) {
+//                	fInterestingJobs.put(job.source(), job);
+//                }
+//                return super.parseSourceGoals(job);
+//            }
+// 
+//        };
     }
 }

@@ -54,8 +54,10 @@ import fabric.imp.parser.ExtensionInfo.FabricIDELexer;
 import fabric.imp.parser.ExtensionInfo.FabricIDEParser;
 import polyglot.ast.SourceFile;
 import polyglot.frontend.Compiler;
+import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
+import polyglot.main.Options;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
@@ -71,6 +73,8 @@ import polyglot.util.Position;
 //import x10dt.ui.X10DTUIPlugin;
 
 public class CompilerDelegate {
+	public static final int INVARIANT_VIOLATION_KIND = 11;
+
 	private class EditorErrorQueue extends AbstractErrorQueue {
 		private final IPath filePath;
 		private final IMessageHandler handler;
@@ -146,7 +150,7 @@ public class CompilerDelegate {
 		try {
 			return project.getProject().hasNature(FabricPlugin.FAB_PRJ_JAVA_NATURE_ID);
 		} catch (CoreException e) {
-			X10DTUIPlugin.log(e);
+//			X10DTUIPlugin.log(e);
 			return false;
 		}
 	}
@@ -161,21 +165,22 @@ public class CompilerDelegate {
 			map = new HashMap<String, Object>();
 		}
 
-		if (!map.containsKey(IMessageHandler.SEVERITY_KEY)) {
-			if (errorInfo.getErrorKind() == ErrorInfo.WARNING) {
-				map.put(IMessageHandler.SEVERITY_KEY, IAnnotation.WARNING);
-			}
-
-			else {
-				map.put(IMessageHandler.SEVERITY_KEY, IAnnotation.ERROR);
-			}
-		}
+		//TODO: Why doesn't this resolve?
+//		if (!map.containsKey(IMessageHandler.SEVERITY_KEY)) {
+//			if (errorInfo.getErrorKind() == ErrorInfo.WARNING) {
+//				map.put(IMessageHandler.SEVERITY_KEY, IAnnotation.WARNING);
+//			}
+//
+//			else {
+//				map.put(IMessageHandler.SEVERITY_KEY, IAnnotation.ERROR);
+//			}
+//		}
 
 		return map;
 	}
 
     protected boolean isValidationMsg(ErrorInfo error) {
-    	return (error.getErrorKind() == ErrorInfo.INVARIANT_VIOLATION_KIND);
+    	return (error.getErrorKind() == INVARIANT_VIOLATION_KIND);
     }
 
     public ExtensionInfo getExtInfo() { return fExtInfo; }
@@ -185,7 +190,7 @@ public class CompilerDelegate {
     public SourceFile getASTFor(Source src) { return (SourceFile) fExtInfo.getASTFor(src); }
     public Job getJobFor(Source src) { return fExtInfo.getJobFor(src); }
 
-    public boolean compile(Collection<Source> sources) {
+    public boolean compile(Collection<FileSource> sources) {
         if (fViolationHandler != null) {
         	fViolationHandler.clear();
         }
@@ -250,21 +255,22 @@ public class CompilerDelegate {
 
         // Produce a search path heuristically for files living outside the workspace,
         // and for workspace files living in non-X10-natured projects.
-        if (fX10Project == null || !isX10Project()) {
-        	IPath pkgRootPath= determinePkgRootPath();
-
-        	if (pkgRootPath != null) {
-        		if (fX10Project != null && fX10Project.getProject().getName().equals("x10.runtime")) {
-        			// If the containing project happens to be x10.runtime,
-        			// don't add the runtime bound into the X10DT to the search path
-        			return Arrays.asList(pkgRootPath);
-        		} else {
-                    return Arrays.asList(pkgRootPath, new Path(getRuntimePath()));
-        		}
-        	} else {
-                return Arrays.asList((IPath) new Path(getRuntimePath()));
-        	}
-        }
+        //XXX: change to Fabric runtime classes
+//        if (fX10Project == null || !isX10Project()) {
+//        	IPath pkgRootPath= determinePkgRootPath();
+//
+//        	if (pkgRootPath != null) {
+//        		if (fX10Project != null && fX10Project.getProject().getName().equals("x10.runtime")) {
+//        			// If the containing project happens to be x10.runtime,
+//        			// don't add the runtime bound into the X10DT to the search path
+//        			return Arrays.asList(pkgRootPath);
+//        		} else {
+//                    return Arrays.asList(pkgRootPath, new Path(getRuntimePath()));
+//        		}
+//        	} else {
+//                return Arrays.asList((IPath) new Path(getRuntimePath()));
+//        	}
+//        }
 
         IClasspathEntry[] classPath= fX10Project.getResolvedClasspath(true);
 
@@ -336,23 +342,23 @@ public class CompilerDelegate {
     }
 
     private void buildOptions(ExtensionInfo extInfo) {
-        X10CompilerOptions opts = extInfo.getOptions();
+        Options opts = extInfo.getOptions();
 
         try {
             List<IPath> projectSrcLoc = getProjectSrcPath();
             String projectSrcPath = pathListToPathString(projectSrcLoc);
-            opts.x10_config.CHECK_INVARIANTS= (fViolationHandler != null);
+//            opts.x10_config.CHECK_INVARIANTS= (fViolationHandler != null);
             opts.parseCommandLine(new String[] { "-c", "-commandlineonly",
                     "-cp", buildClassPathSpec(), "-sourcepath", projectSrcPath
             }, new HashSet<String>());
-            final IPreferencesService prefService = FabricPlugin.getInstance().getPreferencesService();
-            CompilerOptionsFactory.setOptionsNoCodeGen(prefService, opts);
+//            final IPreferencesService prefService = FabricPlugin.getInstance().getPreferencesService();
+//            CompilerOptionsFactory.setOptionsNoCodeGen(prefService, opts);
         } catch (UsageError e) {
             if (!e.getMessage().equals("must specify at least one source file")) {
-                X10DTUIPlugin.getInstance().writeErrorMsg(e.getMessage());
+//                X10DTUIPlugin.getInstance().writeErrorMsg(e.getMessage());
             }
         } catch (CoreException e) {
-            X10DTUIPlugin.getInstance().writeErrorMsg("Unable to obtain resolved class path: " + e.getMessage());
+//            X10DTUIPlugin.getInstance().writeErrorMsg("Unable to obtain resolved class path: " + e.getMessage());
         }
         // X10UIPlugin.getInstance().maybeWriteInfoMsg("Source path = " + opts.source_path);
         // X10UIPlugin.getInstance().maybeWriteInfoMsg("Class path = " + opts.classpath);
@@ -437,15 +443,16 @@ public class CompilerDelegate {
 
     	try {
     		buildClassPathSpec(root, fX10Project, fX10Project, container);
-    		URL x10RuntimeURL = null;
-    		try {
-    			x10RuntimeURL = X10BundleUtils.getX10RuntimeURL();
-    		} catch (CoreException e) {
-    		}
-
-    		if(x10RuntimeURL != null) {
-    			container.add(new Path(x10RuntimeURL.getPath()));
-    		}
+    		//XXX: add Fab runtime
+//    		URL x10RuntimeURL = null;
+//    		try {
+//    			x10RuntimeURL = X10BundleUtils.getX10RuntimeURL();
+//    		} catch (CoreException e) {
+//    		}
+//
+//    		if(x10RuntimeURL != null) {
+//    			container.add(new Path(x10RuntimeURL.getPath()));
+//    		}
     	} catch (JavaModelException e) {
     		FabricPlugin.getInstance().writeErrorMsg("Error resolving class path: " + e.getMessage());
     	}
@@ -464,17 +471,17 @@ public class CompilerDelegate {
     }
 
     
-    /**
-     * Find and return the location of the X10 runtime, to be used as part of the
-     * compiler's search path when editing files (like the XRX sources themselves)
-     * that have no associated workspace project.
-     */
-    private String getRuntimePath() {
-        try {
-            final URL x10RuntimeURL = X10BundleUtils.getX10RuntimeURL();
-            return (x10RuntimeURL == null) ? "" : x10RuntimeURL.getPath();
-        } catch (CoreException e) {
-            return "";
-        }
-    }
+//    /**
+//     * Find and return the location of the X10 runtime, to be used as part of the
+//     * compiler's search path when editing files (like the XRX sources themselves)
+//     * that have no associated workspace project.
+//     */
+//    private String getRuntimePath() {
+//        try {
+//            final URL x10RuntimeURL = X10BundleUtils.getX10RuntimeURL();
+//            return (x10RuntimeURL == null) ? "" : x10RuntimeURL.getPath();
+//        } catch (CoreException e) {
+//            return "";
+//        }
+//    }
 }

@@ -15,9 +15,10 @@
  * 
  * This file is part of the Eclipse IMP.
  */
-package x10dt.ui.parser;
+package fabric.imp.parser;
 
 import java.io.IOException;
+import java.io.Reader;
 
 import lpg.runtime.IPrsStream;
 import lpg.runtime.LexStream;
@@ -25,16 +26,18 @@ import lpg.runtime.Monitor;
 
 import org.eclipse.imp.parser.ILexer;
 
-import x10.parser.X10Lexer;
+import fabric.imp.parser.ExtensionInfo.FabricIDELexer;
 
 public class LexerDelegate implements ILexer
 {
-	X10Lexer myLexer;
+	FabricIDELexer myLexer;
 
 	public LexerDelegate(String absFilePath) throws IOException {
-	    this.myLexer = new X10Lexer(absFilePath);
+		
+        Reader reader = source.openReader(false);
+	    this.myLexer = new FabricIDELexer();
 	}
-	public LexerDelegate(X10Lexer myLexer) {
+	public LexerDelegate(FabricIDELexer myLexer) {
 	    this.myLexer = myLexer;
 	}
 	public int [] getKeywordKinds() { return myLexer.getKeywordKinds(); }

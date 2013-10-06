@@ -18,7 +18,6 @@ import lpg.runtime.Monitor;
 import org.eclipse.imp.parser.IParser;
 
 import fabric.imp.parser.ExtensionInfo.FabricIDEParser;
-import x10.parser.X10SemanticRules;
 
 public class ParserDelegate implements IParser {
     FabricIDEParser myParser;
@@ -37,22 +36,22 @@ public class ParserDelegate implements IParser {
     }
 
     public int numTokenKinds() {
-        return myParser.getX10Parser().numTokenKinds();
+        return myParser.numTokenKinds();
     }
 
     public int getEOFTokenKind() {
-        return myParser.getX10Parser().getEOFTokenKind();
+        return myParser.getEOFTokenKind();
     }
 
     public Object parser(Monitor monitor, int error_repair_count) {
-        return myParser.getX10Parser().parser(monitor);
+        return myParser.parser(monitor, error_repair_count);
     }
 
     public String[] orderedTerminalSymbols() {
-        return myParser.getX10Parser().orderedTerminalSymbols();
+        return myParser.orderedTerminalSymbols();
     }
 
     public void reset(ILexStream lexStream) {
-        myParser.getX10Parser().reset(lexStream);
+        myParser.reset(lexStream);
     }
 }

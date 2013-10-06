@@ -65,7 +65,6 @@ public class ExtensionInfo extends fabric.ExtensionInfo {
 	    protected String[] termStrings;
 		public FabricIDEParser(lr_parser grm, Source source, ErrorQueue eq) {
 			super(grm, source, eq);
-			// TODO Auto-generated constructor stub
 		}
 
 		public IPrsStream getIPrsStream() {
@@ -103,11 +102,13 @@ public class ExtensionInfo extends fabric.ExtensionInfo {
 		}
 
 		@Override
-		public Object parser(Monitor arg0, int arg1) {			
+		public Object parser(Monitor arg0, int error_repair_count) {
+			return super.parse();
 		}
 
 		@Override
-		public void reset(ILexStream arg0) {			
+		public void reset(ILexStream arg0) {
+			
 		}	
 	}
 	public class FabricIDELexer extends Lexer_c implements ILexer {
@@ -132,7 +133,7 @@ public class ExtensionInfo extends fabric.ExtensionInfo {
 		@Override
 		public int[] getKeywordKinds() {
 		    if (kwKinds == null) {
-    		    Map kws = this.keywords();
+    		    Map kws = this.keywords(); 
     		    kwKinds = new int[kws.entrySet().size()];
     		    
 		    }
@@ -175,7 +176,7 @@ public class ExtensionInfo extends fabric.ExtensionInfo {
         this.project = project;
     }
 
-    public void setInterestingSources(Collection<Source> sources) {
+    public void setInterestingSources(Collection<FileSource> sources) {
         fInterestingSources.clear();
         fInterestingJobs.clear();
         fInterestingASTs.clear();
