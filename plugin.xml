@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension point="org.eclipse.ui.editors">
+		<editor
+				name="Fabric Editor"
+				extensions="fab"
+				class="fabric.ide.editors.FabricEditor"
+				id="fabric.ide.editors.Editor"
+		/>
+	</extension>	
+	
+	<extension
+			point="org.eclipse.core.resources.natures"
+			id="fabric.ide.fabricnature"
+			name="Fabric Nature">
+		<runtime>
+			<run class="fabric.ide.natures.FabricNature"/>
+		</runtime>
+		<builder id="fabric.ide.fabricBuilder" />
+	</extension>
+	
+	<extension point="org.eclipse.ui.newWizards">
+		<category
+				id="fabric.ide.category.wizards"
+				name="Fabric"/>
+			<wizard
+				category="fabric.ide.category.wizards"
+				class="fabric.ide.wizards.FabricNewProjectWizard"
+				id="fabric.ide.wizards.new.fabricproject"
+				name="Fabric Project"
+				icon="images/fabric-logo.png"
+				project="true"/>
+	</extension>	
+	
+	<extension point="org.eclipse.ui.menus">
+  		<menuContribution locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=export">
+     		<menu id="buildPathMenu" label="Build Path">
+     		<command
+           		commandId="fabric.ide.commands.configureBuildPathCommand"
+           		label="Configure Build Path..."
+           		style="push">
+           		
+           		<visibleWhen>
+					<iterate operator="and">
+					<test property="org.eclipse.core.resources.projectNature"
+					value="fabric.ide.fabricnature">
+					</test>
+					</iterate>
+				</visibleWhen> 
+				
+     		</command>
+     		</menu>
+  		</menuContribution>
+	</extension>
+	
+	<extension point="org.eclipse.ui.commands">
+		<command id="fabric.ide.commands.configureBuildPathCommand" name="Configure Build Path Command" />
+	</extension>
+	
+	<extension point="org.eclipse.ui.handlers">
+      <handler
+            class="fabric.ide.wizards.FabricConfigureBuildPathCommandHandler"
+            commandId="fabric.ide.commands.configureBuildPathCommand">
+      </handler>
+    </extension>
+    
+    <extension
+      id="fabricBuilder" name="Fabric Project Builder" point="org.eclipse.core.resources.builders">
+      <builder hasNature="true">
+         <run class="fabric.ide.FabricProjectBuilder">
+         </run>
+      </builder>
+   </extension>
+</plugin>
