@@ -95,6 +95,9 @@ public class FabricPluginInfo extends JifPluginInfo {
       result.addAll(
           Arrays.asList("-filsigcp", BuildpathUtil.flattenPath(fabilSigpath)));
     }
+    
+    // Compile with trusted providers. (XXX)
+    result.add("-trusted-providers");
 
     return super.addCompilerArgs(validateOnly, project, sourceFiles, result);
   }
