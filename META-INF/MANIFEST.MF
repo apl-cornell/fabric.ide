@@ -1,4 +1,6 @@
 Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.9.7
+Created-By: 1.8.0_74-b02 (Oracle Corporation)
 Bundle-ManifestVersion: 2
 Bundle-Name: Fabric IDE
 Bundle-SymbolicName: fabric.ide;singleton:=true
@@ -6,9 +8,9 @@ Bundle-Version: 0.1.0
 Bundle-Vendor: Fabric project group
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Activator: fabric.ide.FabricPlugin
-Require-Bundle: jif.ide;bundle-version="[0.1.0,0.2.0)";visibility:=reexport,fabric;bundle-version="[0.3.0,0.4.0)";visibility:=reexport
+Require-Bundle: jif.ide;bundle-version="[0.1.0,0.2.0)";visibility:=ree
+ xport,fabric;bundle-version="[0.3.0,0.4.0)";visibility:=reexport
 Bundle-ActivationPolicy: lazy
-Export-Package: fabric.ide,
- fabric.ide.editors,
- fabric.ide.natures,
- fabric.ide.wizards
+Export-Package: fabric.ide,fabric.ide.editors,fabric.ide.natures,fabri
+ c.ide.wizards
+

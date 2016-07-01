@@ -1,0 +1,200 @@
+<!--
+     Common definitions.
+     (Can be externally sourced by projects that depend on Fabric IDE.)
+-->
+
+<project name="fabric-ide.common" xmlns:if="ant:if" xmlns:unless="ant:unless">
+  <dirname property="fabric-ide.home" file="${ant.file.fabric-ide.common}"/>
+
+  <!-- Ensure config.properties exists. -->
+  <copy todir="${fabric-ide.home}">
+    <fileset file="${fabric-ide.home}/config.properties.in">
+      <present targetdir="${fabric-ide.home}" present="srconly">
+        <mapper type="glob" from="*.in" to="*"/>
+      </present>
+    </fileset>
+    <mapper type="glob" from="*.in" to="*"/>
+  </copy>
+
+  <!-- Import common definitions. -->
+  <property file="${fabric-ide.home}/config.properties" prefix="config"/>
+
+  <!-- Read in version information. -->
+  <property file="${fabric-ide.home}/version.properties" prefix="fabric-ide"/>
+  <property name="fabric-ide.version"
+      value="${fabric-ide.version.major}.${fabric-ide.version.minor}.${fabric-ide.version.patch}"/>
+
+  <!--
+       Fabric location
+
+       If fabric.home is not defined in the properties file, default
+       to ${fabric-ide.home}/../fabric
+  -->
+  <dirname property="fabric-ide.home.parent" file="${fabric-ide.home}"/>
+  <condition property="fabric.home"
+      value="${config.fabric.home}"
+      else="${fabric-ide.home.parent}/fabric">
+    <isset property="config.fabric.home"/>
+  </condition>
+
+  <!--
+       Jif IDE location
+
+       If jif-ide.home is not defined in the properties file, default
+       to ${fabric-ide.home}/../jif.ide
+  -->
+  <condition property="jif-ide.home"
+      value="${config.jif-ide.home}"
+      else="${fabric-ide.home.parent}/jif.ide">
+    <isset property="config.jif-ide.home"/>
+  </condition>
+
+  <!-- Some classpath defaults -->
+  <path id="jif.classpath">
+    <pathelement path="${jif.home}/lib/jif.jar"/>
+  </path>
+  <path id="jif-ide.classpath">
+    <pathelement path="${fabric-ide.home}/lib/jif-ide.jar"/>
+  </path>
+
+  <!-- Import Jif IDE common definitions. -->
+  <import file="${jif-ide.home}/common.xml" optional="true"/>
+
+  <!--
+       Eclipse location
+
+       If eclipse.home is not defined in the properties file, default to
+       /usr/lib/eclipse. (This condition task will only have effect when
+       building against the Jif IDE binary, which occurs when publishing
+       Fabric IDE. When building against the source, the definitions imported
+       from Jif IDE above will include the eclipse.home property.)
+  -->
+  <condition property="eclipse.home"
+      value="${config.eclipse.home}"
+      else="/usr/lib/eclipse">
+    <isset property="config.eclipse.home"/>
+  </condition>
+
+  <!-- Fabric classpath (includes dependencies) -->
+  <path id="fabric.classpath">
+    <pathelement path="${fabric.home}/classes"/>
+    <pathelement path="${fabric.home}/rt-classes"/>
+    <path refid="jif.classpath"/>
+  </path>
+
+  <!-- Eclipse plugins classpath -->
+  <!-- TODO: Handle case where JARs are installed in user's workspace. -->
+  <path id="eclipse.classpath">
+    <fileset dir="${eclipse.home}/plugins">
+      <include name="**/*.jar"/>
+    </fileset>
+  </path>
+
+  <!-- Fabric IDE classpath (includes dependencies) -->
+  <path id="fabric-ide.classpath">
+    <pathelement path="${fabric-ide.home}/classes"/>
+    <path refid="jif-ide.classpath"/>
+    <path refid="fabric.classpath"/>
+    <path refid="eclipse.classpath"/>
+  </path>
+
+  <!--
+  ________________________________________________________________________
+  Check configuration.
+  -->
+
+  <!-- Check for presence of Fabric. -->
+  <condition property="fabric.exists" value="true">
+    <available classname="fabric.Topics"
+        classpathref="fabric.classpath"/>
+  </condition>
+
+  <!-- If Fabric not found, print out the Fabric home for debugging. -->
+  <echo unless:true="${fabric.exists}"
+      message="Fabric home directory is ${fabric.home}"/>
+
+  <!--
+       Error handling: Fabric not found and fabric.home not set in
+       config.properties.
+  -->
+  <fail message="Failed to find Fabric. Set the 'fabric.home' property in ${fabric-ide.home}/config.properties, and make sure Fabric is built.">
+    <condition>
+      <and>
+        <isfalse value="${fabric.exists}"/>
+        <not><isset property="config.fabric.home"/></not>
+      </and>
+    </condition>
+  </fail>
+
+  <!-- Error handling: Fabric not found. -->
+  <fail message="Failed to find Fabric. Ensure the 'fabric.home' property is correct in '${fabric-ide.home}/config.properties' and make sure Fabric is built.">
+    <condition>
+      <isfalse value="${fabric.exists}"/>
+    </condition>
+  </fail>
+
+  <!-- Check for presence of Jif IDE. -->
+  <condition property="jif-ide.exists" value="true">
+    <available classname="jif.ide.JifPluginInfo"
+        classpathref="fabric-ide.classpath"/>
+  </condition>
+
+  <!--
+       If Jif IDE not found, print out the Jif IDE home for
+       debugging.
+  -->
+  <echo unless:true="${jif-ide.exists}"
+      message="Jif IDE home directory is ${jif-ide.home}"/>
+
+  <!--
+       Error handling: Jif IDE not found and jif-ide.home not set in
+       config.properties.
+  -->
+  <fail message="Failed to find Jif IDE. Set the 'jif-ide.home' property in ${fabric-ide.home}/config.properties, and make sure Jif IDE is built.">
+    <condition>
+      <and>
+        <isfalse value="${jif-ide.exists}"/>
+        <not><isset property="config.jif-ide.home"/></not>
+      </and>
+    </condition>
+  </fail>
+
+  <!-- Error handling: Jif IDE not found. -->
+  <fail message="Failed to find Jif IDE. Ensure the 'jif-ide.home' property is correct in '${fabric-ide.home}/config.properties' and make sure Jif IDE is built.">
+    <condition>
+      <isfalse value="${jif-ide.exists}"/>
+    </condition>
+  </fail>
+
+  <!-- Check for presence of Eclipse. -->
+  <condition property="eclipse.exists" value="true">
+    <available file="${eclipse.home}/plugins" type="dir"/>
+  </condition>
+
+  <!-- If Eclipse not found, print out the Eclipse home for debugging. -->
+  <echo unless:true="${eclipse.exists}"
+      message="Eclipse home directory is ${eclipse.home}"/>
+
+  <!--
+       Error handling: Eclipse not found and eclipse.home not set in
+       config.properties.
+  -->
+  <fail message="Failed to find Eclipse. Set the 'eclipse.home' property in '${fabric-ide.home}/config.properties'.">
+    <condition>
+      <and>
+        <isfalse value="${eclipse.exists}"/>
+        <not><isset property="config.eclipse.home"/></not>
+      </and>
+    </condition>
+  </fail>
+
+  <!-- Error handling: Eclipse not found. -->
+  <fail message="Failed to find Eclipse. Ensure the 'eclipse.home' property is correct in '${fabric-ide.home}/config.properties'.">
+    <condition>
+      <isfalse value="${eclipse.exists}"/>
+    </condition>
+  </fail>
+</project>
+<!--
+vim: ts=2 sw=2 ai et
+-->
